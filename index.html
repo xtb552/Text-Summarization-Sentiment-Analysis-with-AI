@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>AI智能文本分析系统</title>
+    <style>
+        body{width:80%;margin:30px auto;font-family:"微软雅黑";}
+        .info{text-align:center;padding:20px;background:#f0f7ff;border-radius:8px;margin-bottom:20px;}
+        h2{color:#2c3e50;}
+        p{font-size:18px;font-weight:bold;}
+        textarea{width:100%;height:150px;padding:10px;margin:10px 0;}
+        .param{margin:10px 0;}
+        button{padding:10px 20px;margin:5px;background:#007bff;color:white;border:none;border-radius:4px;cursor:pointer;}
+        .result{margin-top:20px;padding:15px;border:1px solid #ccc;border-radius:6px;}
+    </style>
+</head>
+<body>
+    <!-- 固定显示姓名+学号 -->
+    <div class="info">
+        <h2>AI智能文本摘要 & 情感分析系统（前沿NLP项目）</h2>
+        <p>姓名：谢霆邦 &nbsp;&nbsp; 学号：423240616</p>
+    </div>
+
+    <textarea id="inputText" placeholder="请输入要分析的长文本..."></textarea>
+
+    <div class="param">
+        摘要最小长度：<input type="number" id="minLen" value="30">
+        摘要最大长度：<input type="number" id="maxLen" value="80">
+    </div>
+
+    <button onclick="getSummary()">生成AI摘要</button>
+    <button onclick="getSentiment()">AI情感分析</button>
+
+    <div class="result">
+        <h4>分析结果：</h4>
+        <div id="resText"></div>
+    </div>
+
+    <script>
+        async function getSummary(){
+            let text = document.getElementById("inputText").value;
+            let minL = document.getElementById("minLen").value;
+            let maxL = document.getElementById("maxLen").value;
+            let res = await fetch("/get_summary",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({text:text,min_len:minL,max_len:maxL})
+            });
+            let data = await res.json();
+            document.getElementById("resText").innerText = "AI摘要："+data.summary;
+        }
+
+        async function getSentiment(){
+            let text = document.getElementById("inputText").value;
+            let res = await fetch("/get_sentiment",{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({text:text})
+            });
+            let data = await res.json();
+            let tip = data.label==="POSITIVE"?"积极":"消极";
+            document.getElementById("resText").innerText = "情感结果："+tip+"，置信度："+data.score;
+        }
+    </script>
+</body>
+</html>
